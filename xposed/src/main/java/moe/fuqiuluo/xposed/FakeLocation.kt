@@ -14,6 +14,7 @@ import moe.fuqiuluo.xposed.hooks.telephony.miui.MiuiTelephonyManagerHook
 import moe.fuqiuluo.xposed.hooks.sensor.SystemSensorManagerHook
 import moe.fuqiuluo.xposed.hooks.telephony.TelephonyHook
 import moe.fuqiuluo.xposed.hooks.wlan.WlanHook
+import moe.fuqiuluo.xposed.hooks.wlan.MapAppWifiHook
 import moe.fuqiuluo.xposed.utils.FakeLoc
 import moe.fuqiuluo.xposed.utils.Logger
 
@@ -47,6 +48,12 @@ class FakeLocation: IXposedHookLoadPackage, IXposedHookZygoteInit {
      * @throws Throwable Everything the callback throws is caught and logged.
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam?) {
+        // 首先处理地图类应用的WiFi Hook
+        if (lpparam?.packageName != null && lpparam.packageName != "android" && lpparam.packageName != "com.android.phone") {
+            // Hook地图类应用的WiFi功能
+            MapAppWifiHook(lpparam.classLoader, lpparam.packageName)
+        }
+
         if (lpparam?.packageName != "android" && lpparam?.packageName != "com.android.phone") {
             return
         }

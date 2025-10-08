@@ -179,4 +179,88 @@ class MockServiceViewModel : ViewModel() {
             locationManager!!
         )
     }
+
+    // WiFi Hook相关属性
+    var isWifiHookEnabled: Boolean = true
+        set(value) {
+            field = value
+            // 这里可以通过某种方式通知Xposed模块更新配置
+            Log.i("MockServiceViewModel", "WiFi Hook已${if (value) "启用" else "禁用"}")
+        }
+
+    var isWifiDetailLogEnabled: Boolean = false
+        set(value) {
+            field = value
+            Log.i("MockServiceViewModel", "WiFi详细日志已${if (value) "启用" else "禁用"}")
+        }
+
+    // WiFi Hook白名单应用
+    private val wifiHookWhitelist = mutableSetOf<String>()
+
+    // WiFi Hook黑名单应用（强制拦截）
+    private val wifiHookBlacklist = mutableSetOf(
+        "com.baidu.BaiduMap",
+        "com.autonavi.minimap",
+        "com.tencent.map",
+        "com.google.android.apps.maps"
+    )
+
+    /**
+     * 添加应用到WiFi Hook白名单
+     */
+    fun addToWifiWhitelist(packageName: String) {
+        wifiHookWhitelist.add(packageName)
+        Log.i("MockServiceViewModel", "已将 $packageName 添加到WiFi Hook白名单")
+    }
+
+    /**
+     * 从WiFi Hook白名单移除应用
+     */
+    fun removeFromWifiWhitelist(packageName: String) {
+        wifiHookWhitelist.remove(packageName)
+        Log.i("MockServiceViewModel", "已将 $packageName 从WiFi Hook白名单移除")
+    }
+
+    /**
+     * 添加应用到WiFi Hook黑名单
+     */
+    fun addToWifiBlacklist(packageName: String) {
+        wifiHookBlacklist.add(packageName)
+        Log.i("MockServiceViewModel", "已将 $packageName 添加到WiFi Hook黑名单")
+    }
+
+    /**
+     * 从WiFi Hook黑名单移除应用
+     */
+    fun removeFromWifiBlacklist(packageName: String) {
+        wifiHookBlacklist.remove(packageName)
+        Log.i("MockServiceViewModel", "已将 $packageName 从WiFi Hook黑名单移除")
+    }
+
+    /**
+     * 获取WiFi Hook白名单
+     */
+    fun getWifiWhitelist(): Set<String> = wifiHookWhitelist.toSet()
+
+    /**
+     * 获取WiFi Hook黑名单
+     */
+    fun getWifiBlacklist(): Set<String> = wifiHookBlacklist.toSet()
+
+    /**
+     * 重置WiFi Hook配置
+     */
+    fun resetWifiHookConfig() {
+        wifiHookWhitelist.clear()
+        wifiHookBlacklist.clear()
+        wifiHookBlacklist.addAll(setOf(
+            "com.baidu.BaiduMap",
+            "com.autonavi.minimap",
+            "com.tencent.map",
+            "com.google.android.apps.maps"
+        ))
+        isWifiHookEnabled = true
+        isWifiDetailLogEnabled = false
+        Log.i("MockServiceViewModel", "WiFi Hook配置已重置")
+    }
 }
